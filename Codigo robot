@@ -1,0 +1,180 @@
+#include <Arduino.h>
+#include <WiFi.h>
+
+#define SOUND_SPEED 0.034
+
+// Pines de los motores
+int motor1Pin1 = 25;
+int motor1Pin2 = 26;
+int motor2Pin1 = 27;
+int motor2Pin2 = 33;
+int port = 8144;
+WiFiServer server(port);
+
+// Pines del ultrasonido
+#define trigPin 32
+#define echoPin 35
+const int distanceControl = 5;
+float duration;
+float distance;
+int cont = 0;
+
+// Credenciales de WiFi
+const char *ssid = "rasJaveriana"; //rasJaveriana
+const char *passwd = "rasjaveriana2023"; //rasjaveriana2023
+
+//Manejo de tiempo
+unsigned long previousTime = 0;
+long interval = 100;
+
+void setup() {
+  Serial.begin(9600);
+
+  pinMode(motor1Pin1, OUTPUT);
+  pinMode(motor1Pin2, OUTPUT);
+  pinMode(motor2Pin1, OUTPUT);
+  pinMode(motor2Pin2, OUTPUT);
+
+  pinMode(trigPin, OUTPUT); 
+  pinMode(echoPin, INPUT);
+    
+  // Configurar conexion WiFi
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, passwd);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  
+  Serial.println("\nConectado a WiFi");
+  Serial.println(WiFi.localIP());
+
+  digitalWrite(trigPin, LOW);
+  // Iniciar el servidor WiFi
+  server.begin();
+}
+
+void moverAdelante() {
+  digitalWrite(motor1Pin1, LOW);
+  digitalWrite(motor1Pin2, HIGH);
+  digitalWrite(motor2Pin1, LOW);
+  digitalWrite(motor2Pin2, HIGH);
+}
+
+void moverAtras() {
+  digitalWrite(motor1Pin1, HIGH);
+  digitalWrite(motor1Pin2, LOW);
+  digitalWrite(motor2Pin1, HIGH);
+  digitalWrite(motor2Pin2, LOW);
+}
+
+void detenerMotores() {
+  digitalWrite(motor1Pin1, LOW);
+  digitalWrite(motor1Pin2, LOW);
+  digitalWrite(motor2Pin1, LOW);
+  digitalWrite(motor2Pin2, LOW);
+}
+
+void moverDerecha() {
+  digitalWrite(motor1Pin1, LOW);
+  digitalWrite(motor1Pin2, LOW);
+  digitalWrite(motor2Pin1, HIGH);
+  digitalWrite(motor2Pin2, LOW);
+}
+
+void moverIzquierda() {
+  digitalWrite(motor1Pin1, HIGH);
+  digitalWrite(motor1Pin2, LOW);
+  digitalWrite(motor2Pin1, LOW);
+  digitalWrite(motor2Pin2, LOW);
+}
+
+void moverCarro(int parameter1)
+{
+     switch (parameter1)
+     {
+     case 1:
+     moverAdelante();
+     break;
+     case 2:
+     moverAtras();
+     break;
+     case 3:
+     moverIzquierda();
+     break;
+     case 4:
+     moverDerecha();
+     break;      
+          
+     default:
+     detenerMotores();
+     break;
+     }
+}
+
+
+
+void loop() {
+  WiFiClient client = server.available();
+  String read_ros = "";
+  
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  duration = pulseIn (echoPin, HIGH);
+  distance = duration * SOUND_SPEED / 2;
+  
+
+  if (client) {
+    Serial.println("Cliente conectado");
+    while (client.connected()) {
+      while (client.available() > 0) {
+        char data = client.read();
+        if (data == '\n') break;
+        read_ros += data;
+      }
+      
+      if (read_ros.length() > 0) {
+        Serial.print("Comando recibido: ");
+        Serial.println(read_ros);
+        Serial.print("Distance: ");
+        Serial.print(distance);
+        Serial.println("cm");
+        
+        // Convierte el comando recibido a un nÃºmero entero
+        int command = read_ros.toInt();
+
+        // Realizar acciones segÃºn el comando recibido
+        if (distance <= distanceControl) 
+        {
+         if (cont == 0) 
+         {
+          cont++; 
+          previousTime = millis();
+          detenerMotores(); 
+         }
+        unsigned long currentTime = millis();
+        if (currentTime - previousTime >= interval) 
+        {
+         moverCarro(command); 
+        }
+       }
+        
+       else
+       {
+        moverCarro(command);
+        cont = 0;
+       }     
+
+        // Limpia el comando despuÃ©s de procesarlo
+        read_ros = "";
+      }
+    }
+    client.stop();
+    Serial.println("Cliente desconectado");
+  }
+}

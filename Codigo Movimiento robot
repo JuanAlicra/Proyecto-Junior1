@@ -1,0 +1,55 @@
+Serial.begin (9600);
+  
+  pinMode(motor1Pin1, OUTPUT);
+  pinMode(motor1Pin2, OUTPUT);
+  pinMode(motor2Pin1, OUTPUT);
+  pinMode(motor2Pin2, OUTPUT);
+
+  digitalWrite (motor1Pin1, LOW);
+  digitalWrite(motor1Pin2, LOW);
+  digitalWrite(motor2Pin1, LOW);
+  digitalWrite(motor2Pin2, LOW);
+  
+   char byteRecibido = (char)Serial.read();
+
+        switch (byteRecibido) {
+          case adelante :
+          Serial.println("adelante");
+           digitalWrite (motor1Pin1, HIGH);
+           digitalWrite(motor1Pin2, LOW);
+           digitalWrite(motor2Pin1, HIGH);
+           digitalWrite(motor2Pin2, LOW);
+           break;
+
+          case atras :
+          Serial.println("atras");
+           digitalWrite (motor1Pin1, LOW);
+           digitalWrite(motor1Pin2, HIGH);
+           digitalWrite(motor2Pin1, LOW);
+           digitalWrite(motor2Pin2, HIGH);
+           break;
+
+          case derecha :
+          Serial.println("derecha");
+           digitalWrite (motor1Pin1, LOW);
+           digitalWrite(motor1Pin2, HIGH);
+           digitalWrite(motor2Pin1, HIGH);
+           digitalWrite(motor2Pin2, LOW);
+           break;
+
+          case izquierda :
+          Serial.println("izquierda");
+           digitalWrite (motor1Pin1, HIGH);
+           digitalWrite(motor1Pin2, LOW);
+           digitalWrite(motor2Pin1, LOW);
+           digitalWrite(motor2Pin2, HIGH);
+           break;
+
+          case stop :
+          Serial.println("stop");
+           digitalWrite (motor1Pin1, LOW);
+           digitalWrite(motor1Pin2, LOW);
+           digitalWrite(motor2Pin1, LOW);
+           digitalWrite(motor2Pin2, LOW);
+           break;
+        }
