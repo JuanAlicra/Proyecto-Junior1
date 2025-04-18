@@ -84,7 +84,7 @@ This project is licensed under the MIT License.
 ```
 MIT License
 
-Copyright (c) 2025 Juan Sebastian Arcila Morales
+Copyright (c) 2025 Ras-Javeriana-Juan-Sebastian-Arcila 
 
 ```
 
