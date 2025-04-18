@@ -77,18 +77,6 @@ It serves as a foundation for more advanced robotics development and contributio
 
 ---
 
-## 🖼️ Media
-
-Robot Design Sketch
-
-Initial sketch showing the modular design and layout of the Rasmobile components.
-
-
-Assembled Rasmobile Prototype
-
-Final prototype of Rasmobile, built and wired by first-semester students during the RAS Junior Program.
----
-
 ## 📄 License
 
 This project is licensed under the MIT License.
